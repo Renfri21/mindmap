@@ -8,7 +8,7 @@ interface NoteProps {
 
 const Note: React.FC<NoteProps> = ({ x, y, children }) => {
   return (
-    <div class="note"
+    <div className="note"
       style={{
         position: 'absolute',
         left: x,

@@ -1,8 +1,36 @@
-import React, { useState, useRef } from 'react';
+import React, { useState,useEffect, useRef } from 'react';
 import SvgGrid from './SvgGrid';
 import Note from './Note';
 
+
 function Map() {
+
+
+ const [notes, setNotes] = useState<{ id: number; x: number; y: number; content: string }[]>([]);
+
+
+async function fetchNotes() {
+      try {
+        const res = await fetch("/api/notes"); // Vite proxy forwards this to Laravel
+        const data = await res.json();
+        setNotes(data); // store notes in state
+        console.log(data);
+      } catch (err) {
+        console.error("Failed to fetch notes:", err);
+      }
+    }
+
+
+  // Fetch notes from Laravel API when component mounts
+  useEffect(() => {
+
+    fetchNotes();
+  }, []); // empty dependency array = runs once on mount
+
+
+
+
+
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
@@ -78,15 +106,41 @@ function Map() {
     setOffset({ x: newOffsetX, y: newOffsetY });
   };
 
-  const [notes, setNotes] = useState<{ x: number; y: number; text: string }[]>([
-    { x: 0, y: 0, text: "Test Sticky Note (0,0)" }
-  ]);
 
-  const addNote = () => {
-    setNotes(prev => [
-      ...prev,
-      { x: 200, y: 200, text: "New Note" } // pick default coordinates
-    ]);
+  
+
+
+
+  const createNote = async () => {
+  // Inside your Map component
+
+    // 1️⃣ Center of visible screen in pixels
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    // 2️⃣ Convert screen pixels to map coordinates
+    const x_coordinate = (centerX - offset.x) / scale;
+    const y_coordinate = ((centerY - offset.y) / scale); // invert if your map uses negative y
+
+
+ try {
+    const response = await fetch("/api/create-note", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `x_coordinate=${encodeURIComponent(x_coordinate)}&y_coordinate=${encodeURIComponent(y_coordinate)}`,
+    });
+
+    // Optional: check response status
+    if (!response.ok) {
+      throw new Error("Failed to create note");
+    }
+
+    // ✅ After creating, reload all notes
+    await fetchNotes(); // your existing fetchNotes function that updates state
+
+  } catch (err) {
+    console.error("something went wrong");
+  }
   };
 
 
@@ -111,11 +165,9 @@ function Map() {
     >
      
         {/* Notes div */}
-       <div class="notes"
+       <div className="notes"
         style={{
           position: 'absolute',
-          //width: 100000,
-          //height: 100000,
           transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           transformOrigin: '0 0',
           zIndex: 2,
@@ -129,11 +181,13 @@ function Map() {
         <Note x={0} y={150}>Note: height, width, x_coordinate, y_coordinate, note_content(should be any character + style, ex. bullets), group(like a subject it belongs to. this can be used to group notes together) </Note>
         {/* You can add more notes here */}
 
-        {notes.map((note, index) => (
-          <Note key={index} x={note.x} y={note.y}>
-            {note.text}
-          </Note>
-        ))}
+        {/* Render all notes */}
+      {notes.map(note => (
+
+        <Note id={note.id} key={note.id} x={note.x_coordinate} y={note.y_coordinate} >
+          {note.note_content} {note.id}
+        </Note>
+      ))}
 
       </div>
 
@@ -152,7 +206,7 @@ function Map() {
           borderRadius: 4,
           cursor: "pointer"
         }}
-        onClick={addNote}
+        onClick={createNote}
       >
         Add Note
       </button>
@@ -193,3 +247,10 @@ function Map() {
 }
 
 export default Map;
+
+
+// // frontend/src/api/notes.ts
+// export async function fetchNotes() {
+//   const res = await fetch("/api/notes"); // goes through Vite proxy to Laravel
+//   return res.json();
+// }
