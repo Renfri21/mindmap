@@ -47,10 +47,35 @@ class NoteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
         //
+        $note = Note::find($request->id);
+
+        if (!$note) {
+            return response()->json(['error' => 'Note not found'], 404);
+        }
+
+        // Update x_coordinate if provided
+        if ($request->has('x_coordinate')) {
+            $note->x_coordinate = intval($request->x_coordinate);
+        }
+
+        // Update y_coordinate if provided
+        if ($request->has('y_coordinate')) {
+            $note->y_coordinate = -intval($request->y_coordinate); //flip int
+        }
+
+        // Update mote_content if provided
+        if ($request->has('note_content')) {
+            $note->note_content = $request->note_content;
+        }
+
+        $note->save();
     }
+
+
+
 
     /**
      * Remove the specified resource from storage.

@@ -16,3 +16,5 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/notes', [NoteController::class, 'index']);
 Route::post('/create-note', [NoteController::class, 'store']);
+
+Route::post('/update-note-coordinates', [NoteController::class, 'update']);
