@@ -84,6 +84,7 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale}) => {
             background: "yellow",
             color: "black",
             padding: "10px",
+            border: "2px solid black",
             borderRadius: "6px",
           }}
           onMouseDown={handleMouseDown}

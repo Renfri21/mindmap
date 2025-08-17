@@ -32,7 +32,8 @@ function SvgGrid({ width, height, scale, offsetX, offsetY, gridSize }: GridProps
         y1={startY}
         x2={x}
         y2={endY}
-        stroke="#ccc"
+        //stroke="#ccc" //white mode 
+        stroke="#3a3a3a" // dark mode
         strokeWidth={1 / scale} // keep lines thin regardless of zoom
       />
     );
@@ -47,7 +48,8 @@ function SvgGrid({ width, height, scale, offsetX, offsetY, gridSize }: GridProps
         y1={y}
         x2={endX}
         y2={y}
-        stroke="#ccc"
+        //stroke="#ccc" //white mode 
+        stroke="#3a3a3a" // dark mode
         strokeWidth={1 / scale}
       />
     );

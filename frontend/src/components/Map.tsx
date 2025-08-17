@@ -144,7 +144,8 @@ function Map() {
         height: '100vh',
         overflow: 'hidden',
         position: 'relative',
-        background: '#f0f0f0',
+        //background: '#f0f0f0', // white mode 
+        background: '#181818',
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
       }}
@@ -170,10 +171,11 @@ function Map() {
 
         // <Note> component comes from Note.tsx
         <Note 
+
           id={note.id} 
           key={note.id} 
           x={note.x_coordinate} 
-          y={note.y_coordinate}
+          y={-note.y_coordinate}
           scale={scale} 
           dragable
         >
