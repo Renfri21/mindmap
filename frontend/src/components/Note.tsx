@@ -7,9 +7,11 @@ interface NoteProps {
     dragable?: boolean;
     children: React.ReactNode;
     scale: number;
+    onSave: (id: number, newContent: string) => void;
+    content: string;
 }
 
-const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale}) => {
+const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale, content}) => {
     const [pos, setPos] = useState({ x, y });
     const draggingRef = useRef(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
@@ -50,12 +52,21 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale}) => {
         updateNoteCoordinates(id, finalX, finalY);
     };
 
-    // POST new coordinates to DataBase
+    // post new coordinates to DataBase
     const updateNoteCoordinates = (id:number, x_coordinate: number, y_coordinate: number) => {
         fetch("/api/update-note-coordinates",{
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: `id=${encodeURIComponent(id)}&x_coordinate=${encodeURIComponent(x_coordinate)}&y_coordinate=${encodeURIComponent(y_coordinate)}`,
+        });
+    };
+
+    // post new content to DataBase
+    const updateNoteContent = (id:number, note_content:text) => {
+        fetch("/api/update-note-coordinates",{
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `id=${encodeURIComponent(id)}&note_content=${encodeURIComponent(note_content)}`,
         });
     };
 
@@ -75,7 +86,7 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale}) => {
         <div
           style={{
             width: "200px",
-            height: "auto",
+            height: "200px",
             position: "absolute",
             left: `${pos.x}px`,
             top: `${pos.y}px`,
@@ -86,10 +97,33 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale}) => {
             padding: "10px",
             border: "2px solid black",
             borderRadius: "6px",
+            zIndex: 2,
           }}
           onMouseDown={handleMouseDown}
         >
-          {children}
+           <textarea
+                defaultValue={content}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    const newText = e.currentTarget.value;
+
+                    updateNoteContent(id, newText);
+                    e.currentTarget.blur(); //
+                  }
+                }}
+                style={{
+                  color: "black",
+                  resize: "none",
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  fontFamily: "inherit",
+                  fontSize: "14px",
+                  width: "100%",
+                  height: "100%",
+                }}
+            />
         </div>
       );
 

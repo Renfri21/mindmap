@@ -16,13 +16,13 @@ return new class extends Migration
             $table->charset('utf8mb4');
             $table->collation('utf8mb4_unicode_ci');
             $table->id()->autoIncrement();
-            $table->int('user_id');->nullable();
-            $table->text('note_content');->nullable();
-            $table->int('x_coordinate');
-            $table->int('y_coordinate');
-            $table->int('width')->nullable();
-            $table->int('height')->nullable();
-            $table->timestamps()->useCurrent();
+            $table->integer('user_id')->nullable();
+            $table->text('note_content')->nullable();
+            $table->integer('x_coordinate');
+            $table->integer('y_coordinate');
+            $table->integer('width')->nullable();
+            $table->integer('height')->nullable();
+            $table->timestamps();
         });
     }
 

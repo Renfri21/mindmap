@@ -22,6 +22,7 @@ function Map() {
   useEffect(() => {
 
     fetchNotes();
+    
   }, []);
 
 
@@ -113,7 +114,7 @@ function Map() {
 
     // Convert screen pixels to map coordinates
     const x_coordinate = (centerX - offset.x) / scale;
-    const y_coordinate = ((centerY - offset.y) / scale); 
+    const y_coordinate = -((centerY - offset.y) / scale); 
 
     try {
       const response = await fetch("/api/create-note", {
@@ -165,27 +166,21 @@ function Map() {
           zIndex: 2,
         }}
       >
-
-      {/* Render all notes */}
-      {notes.map(note => (
-
-        // <Note> component comes from Note.tsx
-        <Note 
-
-          id={note.id} 
-          key={note.id} 
-          x={note.x_coordinate} 
-          y={-note.y_coordinate}
-          scale={scale} 
-          dragable
-        >
-
-        {note.note_content} {note.id}
-        
-        </Note>
-
-      ))}
-
+      
+        {/* Render all notes */}
+        {notes.map(note => (
+          
+          // <Note> component comes from Note.tsx
+          <Note
+            key={note.id}
+            id={note.id}
+            x={note.x_coordinate}
+            y={-note.y_coordinate}
+            scale={scale}
+            dragable
+            content={note.note_content}
+          />
+        ))}
       </div>
 
       <button

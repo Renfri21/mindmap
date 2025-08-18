@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
-        const UPDATED_AT = null; // disables updated_at column
 
     //
     /**
@@ -18,6 +17,7 @@ class Note extends Model
      * @var string
 
      */
+
 
     protected $table = 'notes';
 }

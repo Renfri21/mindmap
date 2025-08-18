@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Note;
 
 class NoteController extends Controller
@@ -13,8 +14,12 @@ class NoteController extends Controller
     public function index()
     {
         //
-        $notes = Note::all();
+        // $notes = Note::all();
         
+        // return $notes;
+
+        $notes = DB::table('notes')->get();
+
         return $notes;
     }
 
@@ -49,7 +54,7 @@ class NoteController extends Controller
      */
     public function update(Request $request)
     {
-        //
+        
         $note = Note::find($request->id);
 
         if (!$note) {
@@ -66,12 +71,24 @@ class NoteController extends Controller
             $note->y_coordinate = -intval($request->y_coordinate); //flip int
         }
 
-        // Update mote_content if provided
+        // Update note_content if provided
         if ($request->has('note_content')) {
             $note->note_content = $request->note_content;
         }
 
+        // Update width if provided
+        if ($request->has('width')) {
+            $note->note_content = $request->note_content;
+        }
+
+        // Update height if provided
+        if ($request->has('height')) {
+            $note->note_content = $request->note_content;
+        } 
+
         $note->save();
+
+
     }
 
 
