@@ -1,14 +1,17 @@
-import React, { useState,useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SvgGrid from './SvgGrid';
 import Note from './Note';
-import { motion } from "framer-motion";
 
 function Map() {
 
 
   const [notes, setNotes] = useState<{ id: number; x: number; y: number; content: string }[]>([]);
 
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+// Start user's screen position on the same location as when they left the page
+  var userLastPositionX = 0;
+  var userLastPositionY = 0;
+
+  const [offset, setOffset] = useState({ x: userLastPositionX, y: userLastPositionY });
   const [scale, setScale] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const lastMousePos = useRef<{ x: number; y: number } | null>(null);
