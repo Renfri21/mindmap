@@ -32,9 +32,9 @@ class NoteController extends Controller
         
         $note = new Note;
 
-        $note->x_coordinate = $request->x_coordinate;
+        $note->x = $request->x;
 
-        $note->y_coordinate = $request->y_coordinate;
+        $note->y = $request->y;
 
         $note->save();
 
@@ -61,19 +61,19 @@ class NoteController extends Controller
             return response()->json(['error' => 'Note not found'], 404);
         }
 
-        // Update x_coordinate if provided
-        if ($request->has('x_coordinate')) {
-            $note->x_coordinate = intval($request->x_coordinate);
+        // Update x coordinate if provided
+        if ($request->has('x')) {
+            $note->x = intval($request->x);
         }
 
-        // Update y_coordinate if provided
-        if ($request->has('y_coordinate')) {
-            $note->y_coordinate = -intval($request->y_coordinate); //flip int
+        // Update y coordinate if provided
+        if ($request->has('y')) {
+            $note->y = -intval($request->y); //flip int
         }
 
         // Update note_content if provided
-        if ($request->has('note_content')) {
-            $note->note_content = $request->note_content;
+        if ($request->has('content')) {
+            $note->content = $request->content;
         }
 
         // Update width if provided
