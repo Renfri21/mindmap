@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useRef } from 'react';
 
 interface GridProps {
   width: number;     // total width of virtual map, e.g. 100000
@@ -9,7 +8,10 @@ interface GridProps {
   gridSize: number;  // grid spacing in pixels at scale 1 (e.g. 100)
 }
 
-function SvgGrid({ width, height, scale, offsetX, offsetY, gridSize }: GridProps) {
+function SvgGrid({ width: _width, height: _height, scale, offsetX, offsetY, gridSize }: GridProps) {
+  // _width and _height are ignored
+  
+  // Set line array for x and y lines
   const lines = [];
 
   // Calculate visible area in virtual coordinates

@@ -31,11 +31,10 @@ function Map() {
 
   async function fetchNotes() {
     try {
-      const res = await fetch("/api/notes");
-      const data = await res.json();
+      const response = await fetch("/api/notes");
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
       setNotes(data);
-      console.log(data);
-      console.log("1");
     } catch (err) {
       console.error("Failed to fetch notes:", err);
     }
@@ -116,14 +115,14 @@ function Map() {
     const centerY = window.innerHeight / 2;
 
     // Convert screen pixels to map coordinates
-    const x_coordinate = (centerX - offset.x) / scale;
-    const y_coordinate = -((centerY - offset.y) / scale); 
+    const x = (centerX - offset.x) / scale;
+    const y = -((centerY - offset.y) / scale); 
 
     try {
       const response = await fetch("/api/create-note", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `x_coordinate=${encodeURIComponent(x_coordinate)}&y_coordinate=${encodeURIComponent(y_coordinate)}`,
+        body: `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`,
       });
 
       if (!response.ok) {
@@ -177,11 +176,11 @@ function Map() {
           <Note
             key={note.id}
             id={note.id}
-            x={note.x_coordinate}
-            y={-note.y_coordinate}
+            x={note.x}
+            y={-note.y}
             scale={scale}
             dragable
-            content={note.note_content}
+            content={note.content}
           />
         ))}
       </div>

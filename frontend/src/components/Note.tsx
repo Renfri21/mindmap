@@ -5,13 +5,11 @@ interface NoteProps {
     x: number;
     y: number;
     dragable?: boolean;
-    children: React.ReactNode;
     scale: number;
-    onSave: (id: number, newContent: string) => void;
     content: string;
 }
 
-const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale, content}) => {
+const Note: React.FC<NoteProps> = ({ id, x, y, dragable, scale, content}) => {
     const [pos, setPos] = useState({ x, y });
     const draggingRef = useRef(false);
     const lastMousePos = useRef({ x: 0, y: 0 });
@@ -53,20 +51,20 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, children, scale, conten
     };
 
     // post new coordinates to DataBase
-    const updateNoteCoordinates = (id:number, x_coordinate: number, y_coordinate: number) => {
+    const updateNoteCoordinates = (id:number, x: number, y: number) => {
         fetch("/api/update-note-coordinates",{
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `id=${encodeURIComponent(id)}&x_coordinate=${encodeURIComponent(x_coordinate)}&y_coordinate=${encodeURIComponent(y_coordinate)}`,
+            body: `id=${encodeURIComponent(id)}&x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`,
         });
     };
 
     // post new content to DataBase
-    const updateNoteContent = (id:number, note_content:text) => {
+    const updateNoteContent = (id:number, content:string) => {
         fetch("/api/update-note-coordinates",{
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `id=${encodeURIComponent(id)}&note_content=${encodeURIComponent(note_content)}`,
+            body: `id=${encodeURIComponent(id)}&content=${encodeURIComponent(content)}`,
         });
     };
 
