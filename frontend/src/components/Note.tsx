@@ -54,8 +54,8 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, scale, content}) => {
     const updateNoteCoordinates = (id:number, x: number, y: number) => {
         fetch("/api/update-note-coordinates",{
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `id=${encodeURIComponent(id)}&x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, x, y }),
         });
     };
 
@@ -63,8 +63,8 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, scale, content}) => {
     const updateNoteContent = (id:number, content:string) => {
         fetch("/api/update-note-coordinates",{
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `id=${encodeURIComponent(id)}&content=${encodeURIComponent(content)}`,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, content }),
         });
     };
 

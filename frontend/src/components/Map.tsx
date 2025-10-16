@@ -121,8 +121,8 @@ function Map() {
     try {
       const response = await fetch("/api/create-note", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ x, y, })
       });
 
       if (!response.ok) {

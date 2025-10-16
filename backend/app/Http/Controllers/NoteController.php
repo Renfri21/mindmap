@@ -13,11 +13,7 @@ class NoteController extends Controller
      */
     public function index()
     {
-        //
-        // $notes = Note::all();
         
-        // return $notes;
-
         $notes = DB::table('notes')->get();
 
         return $notes;
@@ -28,7 +24,6 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
-        //
         
         $note = new Note;
 
@@ -37,8 +32,6 @@ class NoteController extends Controller
         $note->y = $request->y;
 
         $note->save();
-
-        //return redirect('/');
     }
 
     /**
