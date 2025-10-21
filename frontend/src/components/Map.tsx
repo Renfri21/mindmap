@@ -3,8 +3,6 @@ import SvgGrid from './SvgGrid';
 import Note from './Note';
 
 function Map() {
-
-
   const [notes, setNotes] = useState<{ id: number; x: number; y: number; content: string }[]>([]);
 
 // Start user's screen position on the same location as when they left the page
@@ -13,21 +11,19 @@ function Map() {
 
   const [offset, setOffset] = useState({ x: userLastPositionX, y: userLastPositionY });
   const [scale, setScale] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
-  const lastMousePos = useRef<{ x: number; y: number } | null>(null);
   const [mouseMapPos, setMouseMapPos] = useState<{ x: number; y: number } | null>(null);
+
+  const lastMousePos = useRef<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
 
   const minScale = 0.1;
   const maxScale = 5;
   const gridSize = 100;
 
-
+  // Fetch notes on mount
   useEffect(() => {
-
     fetchNotes();
-    
   }, []);
-
 
   async function fetchNotes() {
     try {
@@ -41,23 +37,21 @@ function Map() {
   }
 
 
-  // Mouse controls
-
-    // Handle mouse down to start dragging map
+    // ------------------ MOUSE HANDLERS ------------------
     const onMouseDown = (e: React.MouseEvent) => {
-      setIsDragging(true);
+      isDraggingRef.current = true;
       lastMousePos.current = { x: e.clientX, y: e.clientY };
     };
 
     // Handle mouse up to stop dragging of map
     const onMouseUp = () => {
-      setIsDragging(false);
+      isDraggingRef.current = false;
       lastMousePos.current = null;
     };
 
     // Handle mouse move for dragging AND update mouse map coordinates
     const onMouseMove = (e: React.MouseEvent) => {
-      if (isDragging && lastMousePos.current) {
+      if (isDraggingRef.current && lastMousePos.current) {
         // Dragging: update offset
         const dx = e.clientX - lastMousePos.current.x;
         const dy = e.clientY - lastMousePos.current.y;
@@ -65,7 +59,7 @@ function Map() {
         lastMousePos.current = { x: e.clientX, y: e.clientY };
       }
 
-      // Update mouse position in map coordinates regardless of dragging
+      // Update mouse coordinates
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
@@ -76,7 +70,7 @@ function Map() {
 
     // When mouse leaves container, clear coordinate display and stop dragging
     const onMouseLeave = () => {
-      setIsDragging(false);
+      isDraggingRef.current = false;
       lastMousePos.current = null;
       setMouseMapPos(null);
     };
@@ -107,38 +101,44 @@ function Map() {
       setOffset({ x: newOffsetX, y: newOffsetY });
     };
 
-  // Touch controls
 
-    // Start dragging
+    // ------------------ TOUCH HANDLERS ------------------
     const onTouchStart = (e:React.TouchEvent) => {
-      setIsDragging(true);
+      isDraggingRef.current = true;
       // Use the first touch point
       const touch = e.touches[0];
       lastMousePos.current = { x: touch.clientX, y: touch.clientY };
     }
 
-    // Stop dragging
-    const onTouchEnd = () => {
-      setIsDragging(false);
-      lastMousePos.current = null;
-    };
+     useEffect(() => {
+      const handleTouchMove = (e: TouchEvent) => {
+        if (!isDraggingRef.current || !lastMousePos.current) return;
+        e.preventDefault(); // prevent scrolling
 
-    // Dragging / updating position
-    const onTouchMove = (e: React.TouchEvent) => {
+        const touch = e.touches[0];
+        const dx = touch.clientX - lastMousePos.current.x;
+        const dy = touch.clientY - lastMousePos.current.y;
 
-      if (!isDragging || !lastMousePos.current) return;
+        setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+        lastMousePos.current = { x: touch.clientX, y: touch.clientY };
+      };
 
-      const touch = e.touches[0];
-      const dx = touch.clientX - lastMousePos.current.x;
-      const dy = touch.clientY - lastMousePos.current.y;
+      const handleTouchEnd = () => {
+        isDraggingRef.current = false;
+        lastMousePos.current = null;
+      };
 
-      // Update offset (you can use the same ref logic you have for smooth dragging)
-      setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+      window.addEventListener("touchmove", handleTouchMove, { passive: false });
+      window.addEventListener("touchend", handleTouchEnd);
 
-      lastMousePos.current = { x: touch.clientX, y: touch.clientY };
-    };
+      return () => {
+        window.removeEventListener("touchmove", handleTouchMove);
+        window.removeEventListener("touchend", handleTouchEnd);
+      };
+    }, []);
 
-  // Handle zoom in button
+
+  // ------------------ ZOOM BUTTONS ------------------
   const zoomIn = () => {
     const zoomIntensity = 0.1; // Adjust button zoom speed
     const newScale = Math.min(scale * (1 + zoomIntensity), maxScale);
@@ -150,11 +150,8 @@ function Map() {
     const mapX = (centerX - offset.x) / scale;
     const mapY = (centerY - offset.y) / scale;
 
-    const newOffsetX = centerX - mapX * newScale;
-    const newOffsetY = centerY - mapY * newScale;
-
     setScale(newScale);
-    setOffset({ x: newOffsetX, y: newOffsetY });
+    setOffset({ x: centerX - mapX * newScale, y: centerY - mapY * newScale });
   };
 
   // Handle zoom out button
@@ -169,11 +166,8 @@ function Map() {
     const mapX = (centerX - offset.x) / scale;
     const mapY = (centerY - offset.y) / scale;
 
-    const newOffsetX = centerX - mapX * newScale;
-    const newOffsetY = centerY - mapY * newScale;
-
     setScale(newScale);
-    setOffset({ x: newOffsetX, y: newOffsetY });
+    setOffset({ x: centerX - mapX * newScale, y: centerY - mapY * newScale });
   };
 
   // when Add Note button is pressed, crate a new empty note in the middle of the current viewport
@@ -194,21 +188,14 @@ function Map() {
         body: JSON.stringify({ x, y, })
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create note");
-      }
-
+      if (!response.ok) throw new Error("Failed to create note");
       await fetchNotes();
-
-    } 
-    catch (err) {
-      console.error("something went wrong");
+    } catch (err) {
+      console.error("Failed to create note:", err);
     }
-
   };
 
   return (
-
     /* Background div */
     <div
       id="background"
@@ -219,12 +206,10 @@ function Map() {
         position: 'relative',
         //background: '#f0f0f0', // white mode 
         background: '#181818',
-        transform: isDragging ? 'scale(1.002)' : 'none', // subtle zoom for feedback
-        boxShadow: isDragging ? 'inset 0 0 30px rgba(255,255,255,0.1)' : 'none',
-        transition: 'transform 0.1s, box-shadow 0.1s',
         userSelect: 'none',
         touchAction: 'none',
-        overscrollBehavior: 'none',
+        overscrollBehavior: 'contain',
+        cursor: isDraggingRef.current ? 'grabbing' : 'grab',
       }}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
@@ -232,8 +217,6 @@ function Map() {
       onMouseLeave={onMouseLeave}
       onWheel={onWheel}
       onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
     >
      
         {/* Notes div */}
@@ -262,6 +245,7 @@ function Map() {
         ))}
       </div>
 
+      {/* Add Note Button */}
       <button
         style={{
           position: "fixed",
@@ -280,6 +264,7 @@ function Map() {
         Add Note
       </button>
 
+      {/* Grid */}
       <SvgGrid
         width={100000}
         height={100000}
@@ -312,6 +297,7 @@ function Map() {
         </div>
       )}
 
+      {/* Zoom buttons */}
       <div id="controls"
         style={{
           textAlign: 'center',

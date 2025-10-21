@@ -4,6 +4,15 @@
   padding: 2rem;
   text-align: center;
 }
+html, body {
+margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none; /* Disable default touch gestures */
+
+}
 
 .logo {
   height: 6em;
