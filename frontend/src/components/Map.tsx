@@ -128,8 +128,8 @@ function Map() {
         lastMousePos.current = null;
       };
 
-      window.addEventListener("touchmove", handleTouchMove, { passive: false });
-      window.addEventListener("touchend", handleTouchEnd);
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleTouchEnd);
 
       return () => {
         window.removeEventListener("touchmove", handleTouchMove);
