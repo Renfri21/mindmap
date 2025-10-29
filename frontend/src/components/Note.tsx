@@ -12,9 +12,12 @@ interface NoteProps {
 const Note: React.FC<NoteProps> = ({ id, x, y, dragable, scale, content}) => {
     const [pos, setPos] = useState({ x, y });
     const draggingRef = useRef(false);
+    const [selected, setSelected] = useState(false);
     const lastMousePos = useRef<{ x: number; y: number } | null>(null);
     const posRef = useRef({ x, y });
     const scaleRef = useRef(scale);
+    const activeNoteRef = useRef<HTMLElement | null>(null);
+
 
     useEffect(() => {
         scaleRef.current = scale; 
@@ -32,9 +35,57 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, scale, content}) => {
             posRef.current = newPos; 
             return newPos;
         });
-
         lastMousePos.current = { x: e.clientX, y: e.clientY };
     };
+
+    // Activate selected note
+    const handleOnClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        const noteElement = e.currentTarget;
+        console.log(noteElement.classList);
+        if (!noteElement.classList.contains('active-note') && !noteElement.classList.contains('dragable')){
+            noteElement.classList.add("dragable");
+            if(activeNoteRef.current){
+                deactivateNote(e);
+                console.log("active after deac");
+                console.log(activeNoteRef.current);
+            }
+
+            
+            activeNoteRef.current = noteElement;
+            console.log(activeNoteRef.current);
+
+        }
+        else if (noteElement.classList.contains('dragable')){
+            draggingRef.current = false;
+            noteElement.classList.remove("dragable");
+            noteElement.classList.add("active-note");
+            //e.target.readOnly = false;
+        }
+        else {
+            //event.stopPropagation();
+            deactivateNote(e);
+            //activeNote = e;
+            e.currentTarget.classList.add("dragable");
+            console.log(e.currentTarget.classList.contains('dragable'));
+        }
+    };
+
+    const deactivateNote = (currentNote) => {
+        //console.log(currentNote);
+        // console.log();
+        
+            // Remove active state and disable content editing for all notes
+            // document.querySelectorAll(".notes").forEach(note => {
+            //     note.classList.remove("active-note");
+
+            //     note.querySelectorAll(".note-task").forEach(task => {
+            //         task.contentEditable = "false";
+            //         task.classList.remove("note-task-active");
+            //      });
+            // });
+            
+    }
+    
 
     // Handles getting the coordinates of a notes dropped location and sending it to update
     const handleMouseUp = () => {
@@ -131,7 +182,7 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, scale, content}) => {
     
 
     return (
-        <div
+        <div className="note"
           style={{
             width: "200px",
             height: "200px",
@@ -147,10 +198,12 @@ const Note: React.FC<NoteProps> = ({ id, x, y, dragable, scale, content}) => {
             borderRadius: "6px",
             zIndex: 2,
           }}
+          onClick={handleOnClick}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
         >
            <textarea
+                readOnly
                 defaultValue={content}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
