@@ -1,149 +1,177 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SvgGrid from './SvgGrid';
 import Note from './Note';
+import { useNotes } from '../hooks/useNotes';
+import Toolbar from './Toolbar';
 
 function Map() {
-  const [notes, setNotes] = useState<{ id: number; x: number; y: number; content: string }[]>([]);
+// ------------------ NOTES STATE ------------------
+  // Custom hook to manage notes data
+  const { notes, fetchNotes, addNote, updateNote, selectNote } = useNotes();
 
-// Start user's screen position on the same location as when they left the page
-  var userLastPositionX = 0;
-  var userLastPositionY = 0;
+  // ------------------ INITIAL USER POSITION ------------------
+  // Start user's screen position where they last left off
+  const userLastPositionX = 0;
+  const userLastPositionY = 0;
 
+  // Map offset and zoom scale
   const [offset, setOffset] = useState({ x: userLastPositionX, y: userLastPositionY });
   const [scale, setScale] = useState(1);
+
+  // Mouse position in map coordinates
   const [mouseMapPos, setMouseMapPos] = useState<{ x: number; y: number } | null>(null);
 
+  // Track last mouse position for drag calculations
   const lastMousePos = useRef<{ x: number; y: number } | null>(null);
-  const isDraggingRef = useRef(false);
+  const [isMouseDown, setIsMouseDown] = useState(false);
 
+  // Minimum and maximum zoom levels
   const minScale = 0.1;
   const maxScale = 5;
+
+  // Grid size for the background grid
   const gridSize = 100;
 
-  // Fetch notes on mount
-  useEffect(() => {
-    fetchNotes();
-  }, []);
+  // Toggle for content update mode
+  // true = every letter (live), false = on Enter/blur
+  const [liveUpdate, setLiveUpdate] = useState(false);
 
-  async function fetchNotes() {
-    try {
-      const response = await fetch("/api/notes");
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      setNotes(data);
-    } catch (err) {
-      console.error("Failed to fetch notes:", err);
-    }
-  }
+// ------------------ MOUSE HANDLERS ------------------
 
+  /**
+   * Handle mousedown on the background.
+   * - Deselects all notes
+   * - Starts drag for moving the map
+   */
+  const handleBackgroundOnMouseDown = (e: React.MouseEvent) => {
+    selectNote(null); // Deselect any selected note
+    setIsMouseDown(true); // Start dragging
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+  };
 
-    // ------------------ MOUSE HANDLERS ------------------
-    const onMouseDown = (e: React.MouseEvent) => {
-      isDraggingRef.current = true;
+  /**
+   * Handle mouse up event
+   * - Stop dragging
+   */
+  const onMouseUp = () => {
+    setIsMouseDown(false);
+    lastMousePos.current = null;
+  };
+
+  /**
+   * Handle mouse move event
+   * - Updates map offset if dragging
+   * - Updates mouse coordinates in map space
+   */
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (isMouseDown && lastMousePos.current) {
+      const dx = e.clientX - lastMousePos.current.x;
+      const dy = e.clientY - lastMousePos.current.y;
+
+      setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
       lastMousePos.current = { x: e.clientX, y: e.clientY };
-    };
-
-    // Handle mouse up to stop dragging of map
-    const onMouseUp = () => {
-      isDraggingRef.current = false;
-      lastMousePos.current = null;
-    };
-
-    // Handle mouse move for dragging AND update mouse map coordinates
-    const onMouseMove = (e: React.MouseEvent) => {
-      if (isDraggingRef.current && lastMousePos.current) {
-        // Dragging: update offset
-        const dx = e.clientX - lastMousePos.current.x;
-        const dy = e.clientY - lastMousePos.current.y;
-        setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
-        lastMousePos.current = { x: e.clientX, y: e.clientY };
-      }
-
-      // Update mouse coordinates
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const mapX = (mouseX - offset.x) / scale;
-      const mapY = -((mouseY - offset.y) / scale);
-      setMouseMapPos({ x: mapX, y: mapY });
-    };
-
-    // When mouse leaves container, clear coordinate display and stop dragging
-    const onMouseLeave = () => {
-      isDraggingRef.current = false;
-      lastMousePos.current = null;
-      setMouseMapPos(null);
-    };
-
-    // Handle wheel for zooming
-    const onWheel = (e: React.WheelEvent) => {
-
-      const zoomIntensity = 0.001; // Adjust zoom speed
-      const delta = -e.deltaY * zoomIntensity;
-
-      let newScale = scale * (1 + delta);
-      newScale = Math.min(Math.max(newScale, minScale), maxScale);
-
-      // Calculate mouse position relative to map container
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-
-      // Calculate map coordinates before zoom
-      const mapX = (mouseX - offset.x) / scale;
-      const mapY = (mouseY - offset.y) / scale;
-
-      // Calculate new offset to zoom towards cursor
-      const newOffsetX = mouseX - mapX * newScale;
-      const newOffsetY = mouseY - mapY * newScale;
-
-      setScale(newScale);
-      setOffset({ x: newOffsetX, y: newOffsetY });
-    };
-
-
-    // ------------------ TOUCH HANDLERS ------------------
-    const onTouchStart = (e:React.TouchEvent) => {
-      isDraggingRef.current = true;
-      // Use the first touch point
-      const touch = e.touches[0];
-      lastMousePos.current = { x: touch.clientX, y: touch.clientY };
     }
 
-     useEffect(() => {
-      const handleTouchMove = (e: TouchEvent) => {
-        if (!isDraggingRef.current || !lastMousePos.current) return;
-        e.preventDefault(); // prevent scrolling
+    // Calculate mouse position in map coordinates
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const mapX = (mouseX - offset.x) / scale;
+    const mapY = -((mouseY - offset.y) / scale);
 
-        const touch = e.touches[0];
-        const dx = touch.clientX - lastMousePos.current.x;
-        const dy = touch.clientY - lastMousePos.current.y;
+    setMouseMapPos({ x: mapX, y: mapY });
+  };
 
-        setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
-        lastMousePos.current = { x: touch.clientX, y: touch.clientY };
-      };
+  /**
+   * Handle mouse leaving the map
+   * - Stops dragging
+   * - Clears mouse coordinates display
+   */
+  const onMouseLeave = () => {
+    setIsMouseDown(false);
+    lastMousePos.current = null;
+    setMouseMapPos(null);
+  };
 
-      const handleTouchEnd = () => {
-        isDraggingRef.current = false;
-        lastMousePos.current = null;
-      };
+  /**
+   * Handle wheel events for zooming in/out
+   * - Zooms towards cursor position
+   */
+  const onWheel = (e: React.WheelEvent) => {
+    const zoomIntensity = 0.001; // Zoom speed factor
+    const delta = -e.deltaY * zoomIntensity;
 
-      document.addEventListener("touchmove", handleTouchMove, { passive: false });
-      document.addEventListener("touchend", handleTouchEnd);
+    let newScale = scale * (1 + delta);
+    newScale = Math.min(Math.max(newScale, minScale), maxScale);
 
-      return () => {
-        window.removeEventListener("touchmove", handleTouchMove);
-        window.removeEventListener("touchend", handleTouchEnd);
-      };
-    }, []);
+    // Cursor position relative to map container
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
 
+    // Map coordinates under cursor before zoom
+    const mapX = (mouseX - offset.x) / scale;
+    const mapY = (mouseY - offset.y) / scale;
 
-  // ------------------ ZOOM BUTTONS ------------------
+    // Adjust offset to zoom toward cursor
+    const newOffsetX = mouseX - mapX * newScale;
+    const newOffsetY = mouseY - mapY * newScale;
+
+    setScale(newScale);
+    setOffset({ x: newOffsetX, y: newOffsetY });
+  };
+
+// ------------------ TOUCH SCREEN HANDLERS ------------------
+
+  /**
+   * Start drag on touch devices
+   */
+  const onTouchStart = (e: React.TouchEvent) => {
+    setIsMouseDown(true);
+    const touch = e.touches[0];
+    lastMousePos.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  /**
+   * Global touchmove and touchend listeners for smooth drag
+   */
+  useEffect(() => {
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isMouseDown || !lastMousePos.current) return;
+      e.preventDefault(); // Prevent page scroll
+
+      const touch = e.touches[0];
+      const dx = touch.clientX - lastMousePos.current.x;
+      const dy = touch.clientY - lastMousePos.current.y;
+
+      setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+      lastMousePos.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const handleTouchEnd = () => {
+      setIsMouseDown(false);
+      lastMousePos.current = null;
+    };
+
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [isMouseDown]);
+
+// ------------------ ZOOM BUTTON FUNCTIONS ------------------
+
+  /**
+   * Zoom in using the button
+   * - Zoom towards screen center
+   */
   const zoomIn = () => {
-    const zoomIntensity = 0.1; // Adjust button zoom speed
+    const zoomIntensity = 0.1;
     const newScale = Math.min(scale * (1 + zoomIntensity), maxScale);
 
-    // Use viewport center as zoom point
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
@@ -154,12 +182,14 @@ function Map() {
     setOffset({ x: centerX - mapX * newScale, y: centerY - mapY * newScale });
   };
 
-  // Handle zoom out button
+  /**
+   * Zoom out using the button
+   * - Zoom towards screen center
+   */
   const zoomOut = () => {
-    const zoomIntensity = 0.1; // Adjust button zoom speed
+    const zoomIntensity = 0.1;
     const newScale = Math.max(scale * (1 - zoomIntensity), minScale);
 
-    // Use viewport center as zoom point
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
@@ -170,35 +200,39 @@ function Map() {
     setOffset({ x: centerX - mapX * newScale, y: centerY - mapY * newScale });
   };
 
-  // when Add Note button is pressed, crate a new empty note in the middle of the current viewport
+// ------------------ CREATE NEW NOTE ------------------
+
+  /**
+   * Adds a new note centered in the current viewport
+   */
   const createNote = async () => {
 
-    // Center of visible screen in pixels
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
-    // Convert screen pixels to map coordinates
+    // Convert screen coordinates to map coordinates
     const x = (centerX - offset.x) / scale;
-    const y = -((centerY - offset.y) / scale); 
+    const y = ((centerY - offset.y) / scale); 
+    addNote(x, y);
+    // try {
+    //   const response = await fetch("/api/create-note", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ x, y }),
+    //   });
 
-    try {
-      const response = await fetch("/api/create-note", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ x, y, })
-      });
-
-      if (!response.ok) throw new Error("Failed to create note");
-      await fetchNotes();
-    } catch (err) {
-      console.error("Failed to create note:", err);
-    }
+    //   if (!response.ok) throw new Error("Failed to create note");
+    //   await fetchNotes(); // Refresh notes after creation
+    // } catch (err) {
+    //   console.error("Failed to create note:", err);
+    // }
   };
 
+// ------------------ RENDER ------------------
   return (
-    /* Background div */
     <div
       id="background"
+      className="background"
       style={{
         width: '100vw',
         height: '100vh',
@@ -209,18 +243,18 @@ function Map() {
         userSelect: 'none',
         touchAction: 'none',
         overscrollBehavior: 'contain',
-        cursor: isDraggingRef.current ? 'grabbing' : 'grab',
+        cursor:  isMouseDown ? 'grabbing' : 'grab',
       }}
-      onMouseDown={onMouseDown}
+      onMouseDown={handleBackgroundOnMouseDown}
       onMouseUp={onMouseUp}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       onWheel={onWheel}
       onTouchStart={onTouchStart}
     >
-     
-        {/* Notes div */}
-       <div className="notes"
+      {/* Notes container, transformed by map offset and scale */}
+      <div
+        className="notes"
         style={{
           position: 'absolute',
           transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
@@ -228,43 +262,31 @@ function Map() {
           zIndex: 2,
         }}
       >
-      
         {/* Render all notes */}
         {notes.map(note => (
-          
-          // <Note> component comes from Note.tsx
           <Note
             key={note.id}
-            id={note.id}
-            x={note.x}
-            y={-note.y}
+            note={note}
             scale={scale}
-            dragable
-            content={note.content}
+            onUpdate={updateNote}
+            onSelect={selectNote}
+            liveUpdate={liveUpdate}
           />
         ))}
       </div>
 
       {/* Add Note Button */}
-      <button
-        style={{
-          position: "fixed",
-          top: 10,
-          left: 10,
-          zIndex: 1000,
-          padding: "8px 12px",
-          backgroundColor: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: 4,
-          cursor: "pointer"
-        }}
-        onClick={createNote}
-      >
+      {/*<button className="add-note-button" onClick={createNote}>
         Add Note
-      </button>
+      </button>*/}
 
-      {/* Grid */}
+      {/* Toggle live/Enter-blur update mode */}
+      {/*<button className={`update-mode-toggle ${liveUpdate ? 'live' : 'enter-blur'}`} 
+              onClick={() => setLiveUpdate(prev => !prev)}>
+        {liveUpdate ? 'Switch to Enter/Blur Mode' : 'Switch to Live Mode'}
+      </button>
+*/}
+      {/* Grid overlay */}
       <SvgGrid
         width={100000}
         height={100000}
@@ -274,61 +296,30 @@ function Map() {
         gridSize={gridSize}
       />
 
-      {/* Coordinates display box */}
+      {/* Coordinates display */}
       {mouseMapPos && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 10,
-            right: 10,
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            color: 'white',
-            padding: '6px 10px',
-            borderRadius: 4,
-            fontFamily: 'monospace',
-            fontSize: 14,
-            pointerEvents: 'none',
-            userSelect: 'none',
-            zIndex: 9999,
-            whiteSpace: 'nowrap',
-          }}
-        >
+        <div className="coordinates-display-box">
           X: {mouseMapPos.x.toFixed(0)}, Y: {mouseMapPos.y.toFixed(0)}
         </div>
       )}
 
       {/* Zoom buttons */}
-      <div id="controls"
-        style={{
-          textAlign: 'center',
-          marginTop: '10px'
-        }}>
+        <div id="controls" className="zoom-control-buttons">
+          <button className="zoom-button" onClick={zoomIn}>
+            +
+          </button>
 
-        <button id="zoomOutButton" 
-          style={{
-            fontSize: '24px',
-            width: '50px',
-            height: '50px',
-            margin: '0 10px',
-            cursor: 'pointer'
-          }}
-          onClick={zoomOut}
-        >
-          -
-        </button>
-        <button id="zoomInButton"
-          style={{ 
-            fontSize: '24px',
-            width: '50px',
-            height: '50px',
-            margin: '0 10px',
-            cursor: 'pointer',
-          }}
-          onClick={zoomIn}
-        >
-          +
-        </button>
-      </div>
+          <button className="zoom-button" onClick={zoomOut}>
+            -
+          </button>
+        </div>
+       <Toolbar
+        onAddNote={createNote}
+        onZoomIn={zoomIn}
+        onZoomOut={zoomOut}
+        onToggleLiveUpdate={() => setLiveUpdate(prev => !prev)}
+        liveUpdate={liveUpdate}
+      />
     </div>
   );
 }

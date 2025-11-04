@@ -40,7 +40,7 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+/*button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -50,7 +50,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
+}*/
 button:hover {
   border-color: #646cff;
 }
@@ -70,4 +70,105 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+
+.note {
+  background: yellow;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.15s ease;
+  border: 2px solid black;
+  border-radius: 10px;
+}
+
+/* Hover: subtle blue edge */
+.note:hover {
+  border-color: green;
+  box-shadow:
+    0 0 8px rgba(77, 163, 255, 0.6),
+    0 0 16px rgba(77, 163, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Selected: stronger, persistent glow */
+.note.active-note {
+  border-color: #52b4ff;
+  box-shadow:
+    0 0 12px rgba(82, 180, 255, 0.9),
+    0 0 25px rgba(82, 180, 255, 0.7),
+    0 0 40px rgba(82, 180, 255, 0.5);
+  transform: scale(1.02);
+}
+
+.add-note-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  padding: 8px 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.coordinates-display-box {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0,0,0,0.7);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+.zoom-control-buttons {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    gap: 8px;              
+    z-index: 1000;
+}
+
+.zoom-button {
+  font-size:24px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.update-mode-toggle {
+  position: fixed;
+  bottom: 10px; /* place it above zoom buttons, adjust as needed */
+  right: 70px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 1000;
+  background-color: #444;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.update-mode-toggle.live {
+  background-color: #28a745; /* green for live mode */
+}
+
+.update-mode-toggle.enter-blur {
+  background-color: #007bff; /* blue for enter/blur mode */
+}
+
+.update-mode-toggle:hover {
+  opacity: 0.9;
 }

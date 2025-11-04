@@ -28,10 +28,13 @@ class NoteController extends Controller
         $note = new Note;
 
         $note->x = $request->x;
-
         $note->y = $request->y;
+        $note->width = 200;
+        $note->height = 200;
 
         $note->save();
+
+        return response()->json($note);
     }
 
     /**
