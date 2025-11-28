@@ -64,7 +64,7 @@ class NoteController extends Controller
 
         // Update y coordinate if provided
         if ($request->has('y')) {
-            $note->y = -intval($request->y); //flip int
+            $note->y = intval($request->y);
         }
 
         // Update note_content if provided
