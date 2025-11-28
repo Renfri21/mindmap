@@ -1,18 +1,16 @@
-// src/components/BottomToolbar.tsx
-import { Plus, Minus, MousePointer, Type, ZoomIn, ZoomOut } from "lucide-react";
+// src/components/Toolbar.tsx
+
+// Import icons
+import { Plus } from "lucide-react";
 
 interface ToolbarProps {
   onAddNote: () => void;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
   onToggleLiveUpdate: () => void;
   liveUpdate: boolean;
 }
 
 export default function Toolbar({
   onAddNote,
-  onZoomIn,
-  onZoomOut,
   onToggleLiveUpdate,
   liveUpdate,
 }: ToolbarProps) {

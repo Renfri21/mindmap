@@ -27,7 +27,7 @@ export function useNotes() {
     }
   }
 
-  async function addNote(x: number, y: number) {
+  async function addNote(x: number, y: number, scale: number) {
     // Show local temporary note
       const tempNote: Note = {
         id: Date.now(), // temporary local ID
@@ -37,6 +37,7 @@ export function useNotes() {
         height: 200,
         content: '',
         color: '#ffd966',
+        scale,
         isSelected: true,
       };
 
@@ -70,7 +71,7 @@ export function useNotes() {
   }
 
 
-  async function updateNote(id: string, updates: Partial<Note>) {
+  async function updateNote(id: number, updates: Partial<Note>) {
     setNotes((prev) =>
       prev.map((n) => (n.id === id ? { ...n, ...updates } : n))
     );
@@ -86,7 +87,7 @@ export function useNotes() {
     }
   }
 
-  async function removeNote(id: string) {
+  async function removeNote(id: number) {
     setNotes((prev) => prev.filter((n) => n.id !== id));
 
     try {
@@ -98,7 +99,7 @@ export function useNotes() {
     }
   }
 
-  function selectNote(id: string | null) {
+  function selectNote(id: number | null) {
     setNotes((prev) =>
       prev.map((n) => ({ ...n, isSelected: n.id === id }))
     );

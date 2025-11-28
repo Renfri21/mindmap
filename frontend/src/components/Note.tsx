@@ -404,8 +404,8 @@ interface NoteProps {
   note: NoteType;
   scale: number;
   liveUpdate: boolean;
-  onUpdate: (id: string, updates: Partial<NoteType>) => void;
-  onSelect: (id: string | null) => void;
+  onUpdate: (id: number, updates: Partial<NoteType>) => void;
+  onSelect: (id: number | null) => void;
   onTakePointer?: (dragging: boolean) => void;
 }
 

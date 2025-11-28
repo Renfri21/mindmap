@@ -1,5 +1,5 @@
 export interface Note {
-  id: string;
+  id: number;
   x: number;
   y: number;
   width: number;
@@ -7,5 +7,6 @@ export interface Note {
   content: string;
   color: string;
   scale: number;
+  isSelected: boolean;
 }
 console.log("NoteData module loaded"); // to confirm runtime import
