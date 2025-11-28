@@ -1,47 +1,3 @@
-// // src/hooks/useNotes.ts
-// import { useState } from 'react';
-// import type { Note } from '../types/Note';
-// import { nanoid } from 'nanoid'; // install with: npm install nanoid
-
-// export function useNotes() {
-//   const [notes, setNotes] = useState<Note[]>([]);
-
-//   const addNote = (x: number, y: number) => {
-//     const newNote: Note = {
-//       id: nanoid(),
-//       x,
-//       y,
-//       width: 180,
-//       height: 180,
-//       content: 'New note',
-//       color: '#ffd966',
-//       isSelected: false,
-//     };
-//     setNotes((prev) => [...prev, newNote]);
-//   };
-
-//   const updateNote = (id: string, updates: Partial<Note>) => {
-//     setNotes((prev) =>
-//       prev.map((note) => (note.id === id ? { ...note, ...updates } : note))
-//     );
-//   };
-
-//   const removeNote = (id: string) => {
-//     setNotes((prev) => prev.filter((note) => note.id !== id));
-//   };
-
-//   const selectNote = (id: string | null) => {
-//     setNotes((prev) =>
-//       prev.map((note) => ({
-//         ...note,
-//         isSelected: note.id === id,
-//       }))
-//     );
-//   };
-
-//   return { notes, addNote, updateNote, removeNote, selectNote };
-// }
-
 // src/hooks/useNotes.ts
 import { useState, useEffect } from 'react';
 import type { Note } from '../types/Note';
@@ -113,32 +69,6 @@ export function useNotes() {
     }
   }
 
-  // async function addNote(x: number, y: number) {
-  //   const newNote: Omit<Note, 'id'> = {
-  //     x,
-  //     y,
-  //     width: 200,
-  //     height: 200,
-  //     content: 'New note',
-  //     color: '#ffd966',
-  //     isSelected: false,
-  //   };
-
-  //   try {
-  //     const res = await fetch('/api/create-note', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify(newNote),
-  //     });
-  //     if (!res.ok) throw new Error('Failed to add note');
-
-  //     const savedNote: Note = await res.json();
-      
-  //     setNotes((prev) => [...prev, savedNote]);
-  //   } catch (err) {
-  //     console.error('Failed to add note:', err);
-  //   }
-  // }
 
   async function updateNote(id: string, updates: Partial<Note>) {
     setNotes((prev) =>
