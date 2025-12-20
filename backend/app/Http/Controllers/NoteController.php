@@ -8,14 +8,10 @@ use App\Models\Note;
 
 class NoteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index()
     {
-        
-        $notes = DB::table('notes')->get();
-
+        $notes = Note::all();
         return $notes;
     }
 

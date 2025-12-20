@@ -4,8 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // controllers
+use App\Http\Controllers\NodeController;
 use App\Http\Controllers\NoteController;
-
 
 
 
@@ -14,7 +14,11 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::get('/notes', [NoteController::class, 'index']);
+Route::get('/nodes', [NodeController::class, 'index']);
+// update x, y, width or height
+Route::post('/nodes/{id}', [NodeController::class, 'update']);
+
 Route::post('/create-note', [NoteController::class, 'store']);
 
-Route::post('/notes/{id}', [NoteController::class, 'update']);
+//Route::post('/create-image', [ImageController::class, 'store']);
+

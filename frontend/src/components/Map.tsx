@@ -3,13 +3,16 @@
 
 import React from 'react';
 import SvgGrid from './SvgGrid';
-import Note from './Note';
+import Node from './Node/Node';
+import Note from './Note/Note';
 import Toolbar from './Toolbar';
+import { useNodes } from '../hooks/useNodes';
 import { useNotes } from '../hooks/useNotes';
+import { useNodesStore } from '../store/useNodesStore';
 import { useMapStore } from '../store/useMapStore';
 
 export default function Map() {
-  const { notes, addNote, updateNote, selectNote } = useNotes();
+  const { nodes, notes, selectedNodeId, selectNode, updateNode, updateNote } = useNodes();
   const {
     offset, scale, mouseMapPos, setMouseMapPos,
     lastMousePos, isMapDraggingRef, noteIsDraggingRef,
@@ -20,7 +23,7 @@ export default function Map() {
 
   const handleBackgroundMouseDown = (e: React.MouseEvent) => {
     if (noteIsDraggingRef.current) return;
-    selectNote(null);
+    //selectNote(null);
     startDrag(e.clientX, e.clientY);
   };
 
@@ -64,25 +67,37 @@ export default function Map() {
       onMouseLeave={handleBackgroundMouseLeave}
       onWheel={handleWheel}
     >
-      <div style={{
+      <div className='nodes' style={{
         position: 'absolute',
         transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
         transformOrigin: '0 0',
         zIndex: 2,
       }}>
-        {notes.map(note => (
-          <Note
-            key={note.id}
-            note={note}
-            scale={scale}
-            onUpdate={updateNote}
-            onSelect={selectNote}
-            onTakePointer={(dragging) => {
-              noteIsDraggingRef.current = dragging;
-              if (dragging) isMapDraggingRef.current = false;
-            }}
-          />
-        ))}
+
+        {nodes.map(node => {
+          let childElement = null;
+
+          if (node.child) {
+            if (node.child_type === 'note') {
+              childElement = <Note note={node.child} onUpdate={updateNote} />;
+            } 
+            // future: image, folder etc
+          }
+
+          return (
+            <Node
+              key={node.id}
+              node={node}
+              scale={scale}
+              isSelected={selectedNodeId === node.id}
+              onSelect={selectNode}
+              onMove={updateNode}
+              onDrag={updateNode}
+            >
+              {childElement}
+            </Node>
+          );
+        })}
       </div>
 
       <SvgGrid

@@ -44,12 +44,6 @@ export default function Toolbar({
         <Plus size={22} />
       </button>
 
-
-      {/*<button className={`update-mode-toggle ${liveUpdate ? 'live' : 'enter-blur'}`} 
-              onClick={() => setLiveUpdate(prev => !prev)}>
-        {liveUpdate ? 'Switch to on Enter/Deselect Mode' : 'Switch to Per Letter mode'}
-      </button>*/}
-
       <button
         onClick={onToggleLiveUpdate}
         title={
