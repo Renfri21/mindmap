@@ -9,16 +9,22 @@ use App\Http\Controllers\NoteController;
 
 
 
+// Node routes (handles creation/deletion of nodes + their children)
+    Route::get('/nodes', [NodeController::class, 'index']);
+    Route::post('/nodes', [NodeController::class, 'store']);
+    Route::put('/nodes/{id}', [NodeController::class, 'update']);
+    Route::delete('/nodes/{id}', [NodeController::class, 'destroy']);
+
+    // Note content updates (for editing text)
+    Route::put('/notes/{id}', [NoteController::class, 'update']);
+
+
+
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
-Route::get('/nodes', [NodeController::class, 'index']);
-// update x, y, width or height
-Route::post('/nodes/{id}', [NodeController::class, 'update']);
-
-Route::post('/create-note', [NoteController::class, 'store']);
 
 //Route::post('/create-image', [ImageController::class, 'store']);
 

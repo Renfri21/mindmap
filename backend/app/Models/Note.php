@@ -3,16 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphOne; 
 
 class Note extends Model
 {
+    /**
+     * The attributes that are mass assignable.
+     */
+    protected $fillable = [
+        'content',
+    ];
 
-    protected $fillable = ['content'];
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'content' => 'string',
+    ];
 
-    // Morph Note to its Parent Node
+    /**
+     * Get the node that owns this note (inverse relationship)
+     * Optional - only if you need to access the node from a note
+     */
     public function node()
     {
-        return $this->morphOne(Node::class, 'child', 'child_type', 'child_id');
+        return $this->hasOne(Node::class, 'child_id')
+            ->where('child_type', 'note');
     }
 }

@@ -1,5 +1,5 @@
-import Map from '../components/Map';
-import Toolbar from '../components/Toolbar';
+import Map from '../components/map/Map';
+import Toolbar from '../components/map/Toolbar';
 
 export default function MindMapPage() {
   return <Map />;

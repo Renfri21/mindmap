@@ -1,0 +1,160 @@
+Folder PATH listing for volume Windows
+Volume serial number is 00000039 18E7:D6A1
+C:\XAMPP\HTDOCS\MINDMAP
+|   .DS_Store
+|   .gitignore
+|   package-lock.json
+|   package.json
+|   
++---backend
+|   |   .editorconfig
+|   |   .env
+|   |   .gitattributes
+|   |   .gitignore
+|   |   artisan
+|   |   composer.json
+|   |   composer.lock
+|   |   package.json
+|   |   phpunit.xml
+|   |   README.md
+|   |   vite.config.js
+|   |   
+|   +---app
+|   |   +---Http
+|   |   |   \---Controllers
+|   |   |           Controller.php
+|   |   |           NodeController.php
+|   |   |           NoteController.php
+|   |   |           
+|   |   +---Models
+|   |   |       Node.php
+|   |   |       Note.php
+|   |   |       User.php
+|   |   |       
+|   |   \---Providers
+|   |           AppServiceProvider.php
+|   |           
+|   +---bootstrap
+|   |   |   app.php
+|   |   |   providers.php
+|   |   |   
+|   |   \---cache
+|   |           .gitignore
+|   |           packages.php
+|   |           services.php
+|   |           
+|   +---config
+|   |       app.php
+|   |       auth.php
+|   |       cache.php
+|   |       database.php
+|   |       filesystems.php
+|   |       logging.php
+|   |       mail.php
+|   |       queue.php
+|   |       sanctum.php
+|   |       services.php
+|   |       session.php
+|   |       
+|   +---database
+|   |   |   .gitignore
+|   |   |   database.sqlite
+|   |   |   
+|   |   +---factories
+|   |   |       UserFactory.php
+|   |   |       
+|   |   +---migrations
+|   |   |       
+|   |   \---seeders
+|   |           DatabaseSeeder.php
+|   |           
+|   +---public
+|   |       .htaccess
+|   |       favicon.ico
+|   |       index.php
+|   |       robots.txt
+|   |       
+|   +---routes
+|   |       api.php
+|   |       console.php
+|   |       web.php
+|   |       
+|                       
++---frontend
+|   |   .gitignore
+|   |   eslint.config.js
+|   |   index.html
+|   |   package-lock.json
+|   |   package.json
+|   |   README.md
+|   |   tsconfig.app.json
+|   |   tsconfig.json
+|   |   tsconfig.node.json
+|   |   vite.config.ts
+|   |   
+|   +---dist
+|   |   |   index.html
+|   |   |   vite.svg
+|   |   |   
+|   |   \---assets
+|   |           index-CTOaj-g0.css
+|   |           index-DMqktfr6.js
+|   |           
+|       
+|   +---public
+|   |       vite.svg
+|   |       
+|   \---src
+|       |   App.css
+|       |   App.tsx
+|       |   index.css
+|       |   main.tsx
+|       |   vite-env.d.ts
+|       |   
+|       +---api
+|       |       auth.api.ts
+|       |       http.ts
+|       |       mindmap.api.ts
+|       |       nodes.api.ts
+|       |       notes.api.ts
+|       |       
+|       +---assets
+|       |       react.svg
+|       |       
+|       +---components
+|       |   |   Login.tsx
+|       |   |   Map.tsx
+|       |   |   SvgGrid.tsx
+|       |   |   Toolbar.tsx
+|       |   |   
+|       |   +---Node
+|       |   |       Node.tsx
+|       |   |       
+|       |   \---Note
+|       |           Note.tsx
+|       |           
+|       +---hooks
+|       |       useNodes.ts
+|       |       useNotes.ts
+|       |       
+|       +---pages
+|       |       LoginPage.tsx
+|       |       MindmapPage.tsx
+|       |       
+|       +---store
+|       |       useMapStore.ts
+|       |       useNodesStore.ts
+|       |       useNotesStore.ts
+|       |       useViewportStore.ts
+|       |       
+|       +---types
+|       |       Image.ts
+|       |       Node.ts
+|       |       Note.ts
+|       |       
+|       \---utils
+|               clamp.ts
+|               screenToWorld.ts
+|               snapToGrid.ts
+|               worldToScreen.ts
+|               

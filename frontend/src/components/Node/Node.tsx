@@ -37,7 +37,7 @@ export default function Node({ node, scale, isSelected = false, onMove, onSelect
         return;
       }
     }
-console.log(children);
+
     if (draggingRef.current) {
       e.preventDefault();
       const prev = posRef.current;

@@ -3,6 +3,9 @@
 // Import icons
 import { Plus } from "lucide-react";
 
+import { useNodesStore } from "../../store/useNodesStore"; 
+import { useMapStore } from "../../store/useMapStore";
+
 interface ToolbarProps {
   onAddNote: () => void;
   onToggleLiveUpdate: () => void;
@@ -14,6 +17,19 @@ export default function Toolbar({
   onToggleLiveUpdate,
   liveUpdate,
 }: ToolbarProps) {
+
+  const addNode = useNodesStore((s) => s.addNode);
+  
+  const handleAddNote = () => {
+   const { offset, scale } = useMapStore.getState();
+    
+    // Calculate center of current viewport in world coordinates
+    const centerX = (window.innerWidth / 2 - offset.x) / scale;
+    const centerY = (window.innerHeight / 2 - offset.y) / scale;
+    
+    addNode(centerX, centerY, 'note');
+  };
+
   return (
     <div
       style={{
@@ -35,9 +51,10 @@ export default function Toolbar({
         zIndex: 9999,
       }}
     >
+      
       {/* Add Note */}
       <button
-        onClick={onAddNote}
+        onClick={handleAddNote}
         className="p-2 hover:bg-white/10 rounded-lg transition"
         title="Add new note"
       >
