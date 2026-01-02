@@ -12,7 +12,17 @@ interface NodeProps {
   children: React.ReactNode;
 }
 
-export default function Node({ node, scale, isSelected = false, onMove, onSelect, onTakePointer, onDrag, children }: NodeProps) {
+export default function Node({ 
+  node, 
+  scale, 
+  isSelected = false, 
+  onMove, 
+  onSelect, 
+  onTakePointer, 
+  onDrag, 
+  children 
+}: NodeProps) {
+
   const draggingRef = useRef(false);
   const initialMouseRef = useRef<{x:number;y:number} | null>(null);
   const posRef = useRef({ x: node.x, y: node.y });
@@ -70,6 +80,11 @@ export default function Node({ node, scale, isSelected = false, onMove, onSelect
     initialMouseRef.current = { x: e.clientX, y: e.clientY };
     movedBeforeSelectRef.current = false;
 
+    // If this node is not selected, deselect other nodes
+    if (!isSelected) {
+      onSelect?.(null); // deselect everything
+    }
+
     document.addEventListener('mousemove', onDocumentMouseMove);
     document.addEventListener('mouseup', onDocumentMouseUp);
 
@@ -99,14 +114,19 @@ export default function Node({ node, scale, isSelected = false, onMove, onSelect
         top: posRef.current.y,
         width: node.width,
         height: node.height,
+        overflow: 'hidden',
+
         cursor: draggingRef.current ? 'grabbing' : 'grab',
         userSelect: 'none',
+
         background: 'transparent',
-        boxShadow: isSelected ? '0 0 12px rgba(82,180,255,0.9)' : '0 0 4px rgba(0,0,0,0.2)',
-        border: isSelected ? '2px solid #52b4ff' : '2px solid transparent',
-        borderRadius: 8,
-        padding: 4,
-        overflow: 'visible',
+        padding: 0,
+        borderRadius: 4,
+
+        /* selection / elevation only */
+        boxShadow: isSelected
+          ? '0 0 0 2px #52b4ff, 0 10px 28px rgba(0,0,0,0.25)'
+          : '0 6px 18px rgba(0,0,0,0.18)',
       }}
     >
       {children}

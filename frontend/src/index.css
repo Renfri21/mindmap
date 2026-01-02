@@ -172,3 +172,24 @@ button:focus-visible {
 .update-mode-toggle:hover {
   opacity: 0.9;
 }
+
+textarea {
+  scrollbar-width: thin; /* for Firefox */
+  scrollbar-color: #888 #f0e68c; /* thumb color, track color */
+
+  /* For WebKit browsers */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f0e68c; /* light yellow background */
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #888; /* darker thumb */
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555; /* darker on hover */
+  }
+}

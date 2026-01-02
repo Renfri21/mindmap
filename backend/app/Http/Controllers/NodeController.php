@@ -58,7 +58,7 @@ class NodeController extends Controller
             if ($request->child_type === 'note') {
 
                 $child = Note::create([
-                    'content' => $request->input('content', ''),
+                    'content' => $request->input('content', ''), // fallback to ''
                 ]);
                 $childId = $child->id;
             } 

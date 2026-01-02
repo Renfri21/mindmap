@@ -20,6 +20,26 @@ class Note extends Model
         'content' => 'string',
     ];
 
+
+    protected static function booted()
+    {
+
+        static::creating(function ($note) {
+            if ($note->content === null) {
+                $note->content = '';
+            }
+        });
+        
+        static::creating(function ($note) {
+            if ($note->content === null) {
+                $note->content = '';
+            }
+        });
+    }
+
+
+
+
     /**
      * Get the node that owns this note (inverse relationship)
      * Optional - only if you need to access the node from a note
@@ -29,4 +49,6 @@ class Note extends Model
         return $this->hasOne(Node::class, 'child_id')
             ->where('child_type', 'note');
     }
+
+
 }

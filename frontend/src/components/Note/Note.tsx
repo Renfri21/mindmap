@@ -12,7 +12,9 @@ export default function Note({ note, onUpdate }: NoteProps) {
   const [editing, setEditing] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(()=>{ setContent(note.content) }, [note.content]);
+  useEffect(() => { 
+    setContent(note.content) 
+  }, [note.content]);
 
   useEffect(()=>{
     if(editing && ref.current){
@@ -22,30 +24,62 @@ export default function Note({ note, onUpdate }: NoteProps) {
     }
   },[editing]);
 
-  const commit = () => {
-    onUpdate(note.id, { content });
+  const commit = async  () => {
+    await onUpdate(note.id, String(content ?? ''));
     setEditing(false);
   }
 
   return (
-    <textarea
-      ref={ref}
-      value={content}
-      onChange={e=>setContent(e.target.value)}
-      onDoubleClick={e=>{ e.stopPropagation(); setEditing(true); }}
-      onBlur={commit}
-      onKeyDown={e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); commit(); } else if(e.key==='Escape'){ setContent(note.content); setEditing(false) } }}
-      style={{
-        color: 'black',
-        width:'100%',
-        height:'100%',
-        resize:'none',
-        outline:'none',
-        background:'yellow',
-        fontFamily:'sans-serif',
-        fontSize:14,
-        cursor: editing?'text':'default',
+    <div
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        setEditing(true);
       }}
-    />
-  )
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        background: editing ? '#FFF9C4' : '#FFF3A0',
+        borderRadius: 4,
+
+        /* paper feel */
+        boxShadow: editing
+          ? '0 0 0 2px rgba(82,180,255,0.6)'
+          : 'inset 0 0 0 1px rgba(0,0,0,0.06)',
+
+        cursor: editing ? 'text' : 'default',
+      }}
+    >
+      <textarea
+        ref={ref}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            commit();
+          } else if (e.key === 'Escape') {
+            setContent(note.content);
+            setEditing(false);
+          }
+        }}
+        style={{
+          width: '100%',
+          height: '100%',
+          boxSizing: 'border-box',
+          resize: 'none',
+          border: 'none',
+          outline: 'none',
+          background: 'transparent',
+          color: '#2b2b2b',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontSize: 14,
+          lineHeight: 1.5,
+
+          cursor: editing ? 'text' : 'default',
+        }}
+      />
+    </div>
+  );
 }

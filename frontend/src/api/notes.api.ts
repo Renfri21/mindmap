@@ -8,16 +8,22 @@ export async function fetchNotesApi(): Promise<Note[]> {
 }
 
 
-export async function updateNoteApi(id: number, updates: Partial<Note>) {
-  const res = await fetch(`/api/notes/${id}`, { // FIXED: template literal syntax
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...updates,
-      _method: 'PUT', // Laravel treats as PUT
-    }),
+export async function updateNoteApi(id: number, content: string ) {
+  // Guard: never send empty updates
+
+  const res = await fetch(`/api/notes/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({ content }),
   });
-  
-  if (!res.ok) throw new Error('Failed to update note');
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text);
+  }
+
   return res.json();
 }

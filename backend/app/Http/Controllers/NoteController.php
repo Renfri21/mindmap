@@ -25,15 +25,21 @@ class NoteController extends Controller
     {
         $note = Note::findOrFail($id);
 
-        $request->validate([
-            'content' => 'nullable|string',
-        ]);
-
-        $note->update([
-            'content' => $request->input('content', ''),
-        ]);
-
+    if (!$request->has('content')) {
         return response()->json($note);
+    }
+
+    $content = $request->input('content');
+
+    if (!is_string($content)) {
+        $content = '';
+    }
+
+    $note->update([
+        'content' => $content,
+    ]);
+
+    return response()->json($note);
     }
 
     /**
