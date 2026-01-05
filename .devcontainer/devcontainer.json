@@ -1,6 +1,6 @@
 {
-  "name": "Main Dev Environment",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "name": "Web Dev Environment",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts"
@@ -15,10 +15,9 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "bmewburn.vscode-intelephense-client",
-        "bradlc.vscode-tailwindcss",
-        "ms-azuretools.vscode-docker"
+        "bradlc.vscode-tailwindcss"
       ]
     }
   },
-  "postCreateCommand": "npm install"
+  "postCreateCommand": "echo 'container ready'"
 }
