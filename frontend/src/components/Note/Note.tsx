@@ -39,7 +39,7 @@ export default function Note({ note, onUpdate }: NoteProps) {
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        background: editing ? '#FFF9C4' : '#FFF3A0',
+        background: editing ? '#FFF9C4' : '#E6D77A',
         borderRadius: 4,
 
         /* paper feel */

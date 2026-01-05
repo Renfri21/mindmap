@@ -1,18 +1,46 @@
 import { create } from 'zustand';
 import { useRef } from 'react';
 
+/**
+ * Zustand store interface for managing map state:
+ * panning (offset), zooming (scale), and mouse position in map coordinates.
+ */
+
 interface MapStore {
-  offset: { x: number; y: number };
-  scale: number;
+  /**
+   * Pixel-based translation of the entire map.
+   * Determines how far away the map's origin x,y (0,0) is relative to the viewport
+   */
+  offset: { x: number; y: number }; 
+  
+  /**
+   * Zoom level of the map.
+   * 1 = 100%, values < 1 zoom out, values > 1 zoom in.
+   */
+  scale: number; 
+  
+  /**
+   * Current mouse position converted to map (world) coordinates.
+   * Used for coordinate display and debugging.
+   */
   mouseMapPos: { x: number; y: number } | null;
   
-  // Actions
+
+  // --- Actions ---
+
   setOffset: (offset: { x: number; y: number }) => void;
+
   setScale: (scale: number) => void;
   setMouseMapPos: (pos: { x: number; y: number } | null) => void;
+
+  /**
+   * Zooms the map relative to a screen-space point (e.g. mouse position),
+   * keeping that point visually fixed during zoom.
+   */
   zoomAt: (factor: number, centerX: number, centerY: number) => void;
   zoomIn: () => void;
   zoomOut: () => void;
+  
   startDrag: (x: number, y: number) => void;
   drag: (x: number, y: number) => void;
   endDrag: () => void;
@@ -64,12 +92,31 @@ export const useMapStore = create<MapStore>((set, get) => ({
     mapRefs.lastMousePos = { x, y };
   },
 
+  // Updates the map offset while the map is actively being dragged.
+  // Computes the mouse delta since the last frame and applies it
+  // to the current offset to pan the map smoothly.
   drag: (x, y) => {
+    // Only pan the map if a drag operation is active
+    // and a previous mouse position is available
+
     if (mapRefs.isMapDragging && mapRefs.lastMousePos) {
+
+      // Calculate mouse movement since the last update
       const dx = x - mapRefs.lastMousePos.x;
       const dy = y - mapRefs.lastMousePos.y;
+
+      // Read current offset from the store
       const { offset } = get();
-      set({ offset: { x: offset.x + dx, y: offset.y + dy } });
+
+      // Apply the delta to move the map
+      set({ 
+        offset: { 
+          x: offset.x + dx, 
+          y: offset.y + dy 
+        } 
+      });
+      console.log(offset);
+      // Apply the delta to move the map
       mapRefs.lastMousePos = { x, y };
     }
   },

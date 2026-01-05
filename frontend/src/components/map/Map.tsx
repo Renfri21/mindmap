@@ -1,5 +1,6 @@
-// export default Map;
-// src/components/Map.tsx
+// Map.tsx
+// Main mindmap surface responsible for rendering the grid and nodes.
+// Handles map-space transformations, pan/zoom interactions, and mouse coordinate tracking.
 
 import React, { useEffect, useState, useRef } from 'react';
 import SvgGrid from './SvgGrid';
@@ -12,43 +13,47 @@ import { useMapStore, mapRefs } from '../../store/useMapStore';
 
 export default function Map() {
 
-  // Fetch data on mount
+  // Fetch all nodes once on mount.
+  // fetchNodes is stable due to Zustand selector behavior.
   const fetchNodes = useNodesStore((s) => s.fetchNodes);
   useEffect(() => {
     fetchNodes();
   }, [fetchNodes]);
 
 
-  // Nodes and notes
+  // Node state and actions
   const nodes = useNodesStore((s) => s.nodes);
   const selectedNodeId = useNodesStore((s) => s.selectedNodeId);
   const selectNode = useNodesStore((s) => s.selectNode);
   const updateNode = useNodesStore((s) => s.updateNode);
   const addNode = useNodesStore((s) => s.addNode);
 
+  // Note updates
   const updateNote = useNotesStore((s) => s.updateNote);
 
-  // Map Store
+  // Map transform and interaction state (pan, zoom, mouse tracking)
   const {
     offset, scale, mouseMapPos, setMouseMapPos,
-    zoomIn, zoomOut, startDrag, drag, endDrag, zoomAt
+    zoomIn, zoomOut, zoomAt, startDrag, drag, endDrag
   } = useMapStore();
 
-  // State for displayed coordinates
+  // Throttled mouse position display to avoid excessive re-renders
+  // Raw mouse position is stored in a ref and only committed to state at intervals
   const [displayCoords, setDisplayCoords] = useState<{ x: number; y: number } | null>(null);
   const lastUpdateRef = useRef(0);
-
-  // Ref for raw mouse coordinates
   const mousePosRef = useRef({ x: 0, y: 0 });
-
   const throttleInterval = 50; // milliseconds
 
   const gridSize = 100;
 
   
-
+  // Handles mouse movement over the map background using React MouseEvent.
+  // Updates map dragging state and tracks the cursor position in map-spacent
   const handleBackgroundMouseMove = (e: React.MouseEvent) => {
+    
     drag(e.clientX, e.clientY);
+
+    //Convert from screen-space to map-space coordinates
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
